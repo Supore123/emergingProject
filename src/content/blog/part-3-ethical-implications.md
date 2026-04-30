@@ -2,7 +2,6 @@
 title: "Part 3: Ethical Governance and Wider Implications"
 description: "Addressing bias, fairness, and the EU AI Act."
 pubDate: "May 01 2026"
-heroImage: "/blog-placeholder-3.jpg"
 ---
 
 # 3. Wider Ethical Oriented Implications

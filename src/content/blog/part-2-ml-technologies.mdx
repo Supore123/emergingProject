@@ -6,6 +6,8 @@ description: "Final synthesis of the recursive compliance dynamic and future out
 pubDate: 2026-05-01
 ---
 import FraudRingGraph from '../../components/FraudRingGraph.jsx';
+import HGTArchitecture from '../../components/diagrams/HGTArchitecture.jsx';
+import VAEAnomalyFlow from '../../components/diagrams/VAEAnomalyFlow.jsx';
 
 ## 2.1 Why Graph Structure Matters for Financial Crime
 
@@ -22,6 +24,13 @@ An HGT operates on a heterogeneous graph in which each node carries a type label
 Concretely, for a target node t with type τ(t) and a source node s with type τ(s) connected by an edge of relation r, the attention coefficient is computed by projecting the source representation through a relation-specific key matrix and the target representation through a type-specific query matrix. The bilinear form that scores their compatibility is mediated by a relation-specific weight tensor. The aggregation step then weights messages from each neighbour by the resulting attention coefficient, applies a relation-specific value transformation, and combines the outcome with the target's prior representation through a type-specific feed-forward layer.
 
 Three properties of this construction matter for fraud detection. First, the architecture preserves type information end-to-end. A "transfer" edge between two accounts is not collapsed into the same parameter set as a "shares-device" edge; the model can learn that the latter is a strong predictor of collusion while the former is a weak one. Second, attention is meta-relational: the model learns which relations are informative for which node types, which is itself a structural inductive bias well-matched to the typological taxonomies that AML investigators already use. Third, the attention weights are inspectable. For a flagged account, an investigator can extract the top-k most attentionally salient neighbours at each layer, providing a tractable substrate for the auditable inference traces that the EU AI Act is going to require from August 2026 onwards.
+
+<figure>
+  <HGTArchitecture client:load />
+  <figcaption>
+    A single Heterogeneous Graph Transformer layer applied to a financial transaction graph. Typed nodes (account, merchant, device, jurisdiction) are projected through type-specific query and key matrices; the bilinear attention coefficient is then mediated by a relation-specific weight tensor before aggregation. The architecture preserves type information end-to-end, which is the property that yields inspectable per-relation attention traces for downstream auditability under Article 12 of the EU AI Act.
+  </figcaption>
+</figure>
 
 ## 2.3 Detecting Fraud Rings: From Pairwise Anomaly to Topological Signature
 
@@ -46,6 +55,13 @@ A VAE is a generative model that learns to reconstruct its inputs through a prob
 The use of the VAE for anomaly detection rests on a simple property: the model is trained on a large corpus of historical, presumed-benign market behaviour, and consequently it learns to reconstruct such behaviour with low error. When the model is presented with an input drawn from a behavioural pattern that is rare or absent in the training distribution, the reconstruction error rises. The reconstruction error itself, or a calibrated transformation of it (often the negative log-likelihood under the learned generative model), serves as the anomaly score.
 
 For market surveillance, the input window typically encodes message-level order book activity: insertions, cancellations, and executions, time-stamped at microsecond resolution and aggregated into a tensor representation. Spoofing manifests as a pattern of large limit orders placed and cancelled before execution, generating a reconstruction signature that differs from genuine liquidity provision. Layering, momentum ignition, and quote stuffing each generate distinct reconstruction-error profiles. The advantage of the VAE relative to rule-based surveillance is that it does not require the regulator to enumerate the catalogue of manipulation typologies in advance.
+
+<figure>
+  <VAEAnomalyFlow client:load />
+  <figcaption>
+    Schematic of a Variational Autoencoder applied to order-book windows. The encoder maps an input to the parameters of a Gaussian posterior over a low-dimensional latent variable; the decoder reconstructs the input from a posterior sample. The training objective is the Evidence Lower Bound. Manipulation patterns that lie outside the support of the historical benign distribution generate elevated reconstruction errors, which serve as the unsupervised anomaly score. The threshold position is itself a calibration choice that allocates supervisory cost between false alerts and missed manipulation events.
+  </figcaption>
+</figure>
 
 ## 2.6 The Probabilistic Bottleneck and Its Auditability Implications
 

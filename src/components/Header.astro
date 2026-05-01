@@ -2,20 +2,153 @@
 import HeaderLink from './HeaderLink.astro';
 import { SITE_TITLE } from '../consts';
 ---
+
 <header>
-	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
-		<div class="internal-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/blog/part-1-domain">Part 1: Domain</HeaderLink>
-			<HeaderLink href="/blog/part-2-ml-technologies">Part 2: Tech</HeaderLink>
-			<HeaderLink href="/blog/part-3-ethical-implications">Part 3: Ethics</HeaderLink>
-		</div>
-	</nav>
+  <nav aria-label="Main navigation">
+    <a href="/" class="site-title" aria-label={SITE_TITLE}>
+      <span class="title-main">Auditable AI</span>
+      <span class="title-sub">in Fintech</span>
+    </a>
+
+    <div class="nav-container">
+      <details class="section-menu">
+        <summary>
+          <span class="menu-label">Project Sections</span>
+          <span class="menu-icon">▼</span>
+        </summary>
+        <div class="dropdown-links" role="list">
+          <HeaderLink href="/">Overview</HeaderLink>
+          <HeaderLink href="/blog/part-1-domain">Part 1: Domain</HeaderLink>
+          <HeaderLink href="/blog/part-2-ml-technologies">Part 2: Technology</HeaderLink>
+          <HeaderLink href="/blog/part-3-ethical-implications">Part 3: Ethics</HeaderLink>
+          <HeaderLink href="/blog/conclusion">Conclusion</HeaderLink>
+        </div>
+      </details>
+    </div>
+  </nav>
 </header>
+
+<script>
+  // Optional but recommended: Close the dropdown if the user clicks outside of it
+  document.addEventListener('click', (event) => {
+    const details = document.querySelector('.section-menu');
+    if (details && !details.contains(event.target as Node)) {
+      details.removeAttribute('open');
+    }
+  });
+</script>
+
 <style>
-	header { margin: 0; padding: 0 1em; background: white; box-shadow: 0 2px 8px rgba(var(--black), 5%); }
-	h2 { margin: 0; font-size: 1em; }
-	nav { display: flex; align-items: center; justify-content: space-between; }
-	.internal-links { display: flex; gap: 1em; }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 70ch; /* Matches your universal prose width perfectly */
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .site-title {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    line-height: 1.1;
+  }
+
+  .title-main {
+    font-family: var(--font-serif, 'Lora', serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .title-sub {
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* --- Dropdown Styles --- */
+  .nav-container {
+    position: relative;
+  }
+
+  .section-menu {
+    position: relative;
+  }
+
+  .section-menu summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #1f2937;
+    transition: background 0.2s;
+  }
+
+  .section-menu summary:hover {
+    background: #f1f5f9;
+  }
+
+  .section-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .menu-icon {
+    font-size: 0.7rem;
+    color: #6b7280;
+  }
+
+  .dropdown-links {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 240px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    z-index: 1000;
+  }
+
+  .dropdown-links :global(a) {
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    color: #1f2937;
+    font-size: 0.9rem;
+    font-family: var(--font-sans, 'Inter', sans-serif);
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .dropdown-links :global(a:last-child) {
+    border-bottom: none;
+  }
+
+  .dropdown-links :global(a:hover) {
+    background: #f8fafc;
+    color: #2337ff; /* Active accent color */
+  }
 </style>

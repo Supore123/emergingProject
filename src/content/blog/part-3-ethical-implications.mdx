@@ -6,6 +6,8 @@ description: "Final synthesis of the recursive compliance dynamic and future out
 pubDate: 2026-05-01
 ---
 
+import FairnessTradeoff from '../../components/diagrams/FairnessTradeoff.jsx';
+
 ## 3.1 The Opacity Problem and the Statutory Demand for Traces
 
 Article 12 of the EU AI Act requires high-risk AI systems to maintain automated logging sufficient to enable a posteriori traceability of their operation. Article 13 requires that they be designed to be sufficiently transparent to enable deployers to interpret and use their output appropriately. Article 86, which becomes applicable from 2 August 2026, introduces an individual right of explanation: any person subject to a decision based on a high-risk AI system that significantly affects them is entitled to a clear explanation of the system's role in the decision-making process, the main parameters that influenced the output, and the human oversight involved in reaching the final decision. This right extends beyond the General Data Protection Regulation's Article 22 right concerning automated decision-making, which applies only to "solely automated" decisions.
@@ -23,6 +25,13 @@ The result is a formal impossibility theorem. If the base rates of the positive 
 The choice is consequential. A bank that prioritises calibration is producing a model whose probability scores are honest, in the sense that a "30 per cent default risk" prediction corresponds to an empirical default rate of approximately 30 per cent across all groups. The same bank, under the impossibility theorem, will necessarily produce different false positive rates across groups: applicants from a group with lower base default rates will face proportionally more false rejections than applicants from a group with higher base default rates. A bank that prioritises equalised odds inverts the trade-off: error rates are equal, but the probabilistic interpretation of the score becomes group-dependent.
 
 Neither choice is morally neutral and neither choice can be evaded by better engineering. The supervisory framework that will operate from August 2026 onwards will require institutions to document this choice, justify it, and submit it to scrutiny. The justification that "we picked the metric that gave us the best accuracy" will not, in any plausible reading of the AI Act's fundamental rights impact assessment requirement, be accepted. Yet there is no neutral ground from which the choice can be made: the institution is being asked to allocate a moral cost between groups, and the regulation provides no metaethical scaffolding for doing so.
+
+<figure>
+  <FairnessTradeoff client:load />
+  <figcaption>
+    The Kleinberg, Mullainathan and Raghavan impossibility result, restated visually. When group base rates differ (the empirically typical case) no classifier can simultaneously satisfy calibration within groups, equalised odds, and demographic parity. Each vertex represents a fairness criterion; each edge represents the trade-off frontier between two of the three. The shaded interior is empty in the general case: no point inside the triangle is achievable. The institution is therefore obliged to select an edge, and the EU AI Act provides no metric ordering by which that selection can be defended on neutral grounds.
+  </figcaption>
+</figure>
 
 ## 3.3 Machine Unlearning in Graph Architectures: The GDPR Obligation Meets Topological Coupling
 

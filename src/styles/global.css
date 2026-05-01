@@ -203,3 +203,16 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+@media print {
+  header, footer, button { display: none !important; }
+  body { font-size: 12pt; background: white; color: black; }
+  .paper { box-shadow: none; border: none; padding: 0; }
+  h1 { font-size: 24pt; }
+  h2 { font-size: 18pt; }
+  h3 { font-size: 14pt; }
+  a { color: black; text-decoration: none; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+  blockquote { border-left: 3pt solid black; }
+  .fraud-graph-wrap { display: none; } /* hide interactive D3 in PDF */
+  @page { margin: 2.5cm; }
+}

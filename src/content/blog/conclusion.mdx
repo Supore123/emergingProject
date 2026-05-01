@@ -1,0 +1,39 @@
+---
+title: "Conclusion: The Asymmetry That Will Define the Next Decade"
+description: "The defining constraint of financial AI is the gap between model complexity and the regulators' capacity to meaningfully audit it."
+pubDate: "May 01 2026"
+layout: ../../layouts/AcademicLayout.astro
+---
+
+## Conclusion
+
+The argument assembled across these three parts converges on a single claim: the defining constraint on financial AI over the next decade will not be technical. It will not be the absence of sufficiently powerful model architectures, or the shortage of labelled training data, or the computational cost of graph-scale inference. These are problems the industry is solving, at pace and with considerable investment. The defining constraint will be **the asymmetry between model complexity and the capacity of regulatory, legal, and institutional frameworks to meaningfully audit it**.
+
+This asymmetry has three dimensions.
+
+**The explanatory gap.** The models that best detect money laundering — multi-layer Heterogeneous Graph Transformers operating over cross-institutional transaction networks — produce predictions through computational processes that cannot be faithfully summarised in the natural language narratives that compliance workflows require. Post-hoc explanation methods generate locally plausible but globally unreliable proxy descriptions. The EU AI Act demands auditable inference traces that current architectures cannot reliably provide. Closing this gap requires not better SHAP implementations, but a regulatory-technical co-design process that either develops genuinely interpretable graph models, or explicitly redifines what "auditable" means in the GNN context — acknowledging that graph-level explanations are a different kind of accountability artefact than feature importance scores, and require new evaluation frameworks.
+
+**The fairness impossibility.** No classifier can simultaneously satisfy all mathematically formalised fairness criteria in the presence of unequal base rates — which is the empirical reality of financial crime distributions. Regulatory instruments that demand "fair" AI without specifying which fairness criterion takes precedence, or how trade-offs between criteria should be resolved, are creating compliance obligations that are logically unsatisfiable. The industry response — claiming compliance with multiple criteria without engaging with the impossibility result — is intellectually dishonest and will become legally precarious as regulators develop greater technical sophistication. The productive path requires explicit, documented fairness criterion selection as part of model governance, with human accountability attached to that selection.
+
+**The recursive compliance burden.** The regulatory frameworks designed to govern AI in finance — the EU AI Act's conformity assessments, DORA's third-party audit requirements, 6AMLD's criminal liability provisions — are themselves generating compliance workloads that can only be discharged algorithmically. The institutions with the resources to build the audit infrastructure for their AML AI systems are, disproportionately, the largest banks — reinforcing the competitive moats that regulators ostensibly seek to erode. Smaller institutions face a choice between compliance risk (deploying AI without adequate governance infrastructure) and competitive disadvantage (not deploying AI at all). This structural dynamic is not addressed by any current regulatory instrument.
+
+The most intellectually honest conclusion is neither optimistic nor pessimistic but diagnostic: financial AI governance is in a period of productive incoherence. The technical capabilities exceed the institutional frameworks; the regulatory ambitions exceed the technical legibility of deployed systems; the fairness demands exceed the mathematical possibilities. This incoherence is not a failure of policy or engineering — it is the expected condition of any rapidly evolving sociotechnical system. The institutions that will navigate it most successfully will be those that treat the tension between model complexity and regulatory legibility not as a compliance obstacle but as a design constraint — one that should be encoded into model architecture selection, training pipeline governance, and the organisational structures that own AI risk.
+
+The recursive compliance dynamic will not be resolved. It will be managed. And the quality of that management — in engineering choices, in governance structures, in regulatory dialogue — will determine whether AI in financial services becomes a genuine public good or a sophisticated technology for regulatory arbitrage.
+
+---
+
+### References
+
+*Note: For final submission, expand to full academic bibliography in Harvard or APA format.*
+
+- Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments. *Big Data*, 5(2), 153–163.
+- European Banking Authority (2023). *Thematic Review on AML/CFT Transaction Monitoring Systems*. EBA/REP/2023/XX.
+- Financial Action Task Force (2022). *Virtual Assets and Virtual Asset Service Providers*. FATF Guidance.
+- Hu, Z., Dong, Y., Wang, K., & Sun, Y. (2020). Heterogeneous graph transformer. *Proceedings of The Web Conference 2020*, 2704–2710.
+- Jain, S., & Wallace, B. C. (2019). Attention is not Explanation. *Proceedings of NAACL-HLT 2019*, 3543–3556.
+- Kipf, T. N., & Welling, M. (2017). Semi-supervised classification with graph convolutional networks. *ICLR 2017*.
+- Liu, F. T., Ting, K. M., & Zhou, Z. H. (2008). Isolation forest. *ICDM 2008*, 413–422.
+- Rudin, C. (2019). Stop explaining black box machine learning models for high stakes decisions and use interpretable models instead. *Nature Machine Intelligence*, 1(5), 206–215.
+- Veličković, P., Cucurull, G., Casanova, A., Romero, A., Liò, P., & Bengio, Y. (2018). Graph attention networks. *ICLR 2018*.
+- Kingma, D. P., & Welling, M. (2014). Auto-encoding variational bayes. *ICLR 2014*.

@@ -1,0 +1,95 @@
+---
+title: "Part 3: Ethical Governance, Regulatory Friction, and the Limits of Auditability"
+description: "The irreducible conflict between model opacity and the EU AI Act's demand for auditable inference, the formal impossibility of fair ML, and what Rudin's work implies about the explainability reflex."
+pubDate: "May 01 2026"
+layout: ../../layouts/AcademicLayout.astro
+---
+
+## Part 3: Ethical Governance and Wider Implications
+
+### 3.1 The Explainability Trilemma
+
+The EU AI Act's Article 13 requires that high-risk AI systems "be designed and developed in such a way as to ensure that their operation is sufficiently transparent to allow users to understand the system's output and use it appropriately." Article 14 requires human oversight measures ensuring that "natural persons to whom human oversight is assigned are able to properly understand the capacities and limitations of the high-risk AI system." These are not merely aspirational statements; they carry the force of law, and non-compliance creates a pathway to market withdrawal orders.
+
+The problem is that "transparency," "understanding," and "explainability" are not synonyms, and the literature conflates them at significant conceptual cost. Before analysing the regulatory implications, it is necessary to distinguish three concepts that are frequently treated as interchangeable:
+
+**Interpretability** refers to the property of a model itself: a linear model with five features is interpretable because any person can, in principle, reconstruct the model's logic from its parameters. Interpretability is an intrinsic property of the model architecture; it cannot be added to a non-interpretable model after the fact.
+
+**Explainability** refers to post-hoc methods that generate human-readable approximations of an opaque model's behaviour. SHAP (SHapley Additive exPlanations) and LIME (Local Interpretable Model-Agnostic Explanations) are the canonical examples. These methods do not expose the model's actual decision logic; they produce *proxy descriptions* of that logic that are locally faithful (accurate near the instance being explained) but may be globally unfaithful (systematically inaccurate when aggregated across the input space).
+
+**Trust** is not a technical property at all, but a social relation between a system and its stakeholders — shaped by track record, institutional context, regulatory endorsement, and the cultural predispositions of the people doing the trusting. A model can be interpretable without being trusted (if stakeholders distrust the institution deploying it), and trusted without being interpretable (if its track record is sufficiently good).
+
+The EU AI Act, read carefully, demands **trust** but specifies **explainability** as the mechanism for producing it. This is a category error with significant practical consequences.
+
+### 3.2 Rudin's Challenge: Against Post-Hoc Explainability
+
+The most intellectually serious challenge to the post-hoc explainability paradigm comes from Cynthia Rudin's 2019 paper "Stop Explaining Black Box Machine Learning Models for High Stakes Decisions and Use Interpretable Models Instead." The argument is not primarily empirical (that SHAP and LIME produce inaccurate explanations, though they sometimes do) but structural.
+
+Rudin's core claim is that **for high-stakes decisions, there is no reason to use a complex black-box model that requires post-hoc explanation, because interpretable models of comparable accuracy exist for most structured tabular datasets**. The choice of complex model is a preference, not a technical necessity — and it is a preference that comes at the cost of genuine accountability. Her empirical support includes work on recidivism prediction (COMPAS vs. logistic regression with domain-specific features), medical diagnosis, and credit scoring, all showing that carefully engineered interpretable models match the accuracy of ensemble methods without sacrificing legibility.
+
+> "We are not suggesting that all machine learning models should be interpretable, only that — for high-stakes decisions — the default should be to prefer interpretable models unless there is a compelling, specific reason that an interpretable model cannot achieve sufficient accuracy."
+>
+> — Cynthia Rudin, *Nature Machine Intelligence*, 2019
+
+Applied to financial crime detection, Rudin's argument cuts both ways. On the one hand, she is empirically correct that many fraud detection tasks — credit card fraud, for instance — can be addressed with gradient-boosted trees that produce decision path explanations legible to compliance analysts. On the other hand, the *network-level* phenomena that constitute money laundering (the heterogeneous graph structure, the multi-hop transaction chains, the cross-entity ownership patterns) are not naturally represented in the tabular feature spaces to which interpretable models are best suited. A logistic regression over hand-crafted features can detect a structuring pattern; it cannot detect a professional money laundering network where the laundering signal is distributed across dozens of entities and hundreds of transactions connected by ownership, device, and counterparty relationships that only become visible in graph representation.
+
+The important implication is that the industry's current trajectory — deploying complex GNN architectures and then adding SHAP layers to satisfy regulators — is almost certainly the wrong approach. It produces compliance theatre: explanations that satisfy the letter of Article 13 without providing the genuine accountability that the article intends.
+
+The alternative Rudin's framework implies is **architecture selection as a governance decision**: institutions should be required to demonstrate, for each deployed AI system, that they have evaluated whether an interpretable model achieves adequate performance, and that deployment of a complex model is justified by a documented accuracy gap on the specific detection task. This is analogous to the precautionary principle in pharmaceutical regulation — complex treatments require demonstrated superiority over simpler alternatives, not merely plausible theoretical advantages.
+
+### 3.3 The Formal Impossibility of Fair ML
+
+The ethical complexity of financial AI is further deepened by a result from algorithmic fairness theory that is poorly understood outside specialist circles but has direct operational implications: the **impossibility of simultaneously satisfying multiple fairness criteria**.
+
+The three most commonly invoked fairness criteria in financial services are:
+
+**Demographic Parity** (Statistical Parity): The probability of a positive prediction (flagged as suspicious) should be equal across demographic groups: $P(\hat{Y}=1 | A=0) = P(\hat{Y}=1 | A=1)$.
+
+**Equalised Odds**: Both the true positive rate and false positive rate should be equal across groups: $P(\hat{Y}=1 | A=0, Y=y) = P(\hat{Y}=1 | A=1, Y=y)$ for $y \in \{0, 1\}$.
+
+**Calibration** (Predictive Parity): The model's risk scores should be equally calibrated across groups — i.e., a score of 0.7 should indicate 70% probability of fraud regardless of which demographic group the account belongs to.
+
+The Chouldechova (2017) impossibility theorem demonstrates formally that **no classifier can simultaneously satisfy equalised odds and calibration unless base rates are equal across groups**. Since financial crime base rates vary across demographic groups (reflecting historical patterns of poverty, geographic concentration of criminal networks, and differential access to formal financial services), these criteria are mathematically incompatible. Any financial institution that claims its AML system satisfies both calibration (required for sensible risk-based decision-making) and equalised odds (required to avoid differential false positive rates across demographic groups) is either operating with equal base rates (which is empirically implausible) or making a false claim.
+
+| Fairness Criterion | Definition | Conflict With |
+|---|---|---|
+| Demographic Parity | Equal positive prediction rates across groups | Calibration (if base rates differ) |
+| Equalised Odds | Equal TPR and FPR across groups | Calibration (Chouldechova, 2017) |
+| Calibration | Score reflects true probability for all groups | Equalised Odds (if base rates differ) |
+| Individual Fairness | Similar individuals receive similar scores | Group fairness (aggregation paradox) |
+
+This impossibility result is not merely an academic curiosity. The EU AI Act requires that high-risk AI systems be "designed and developed in such a way as to ensure that their operation is as fair as possible." The GDPR's recital 71 requires that automated decisions "should not concern a child" and should "ensure appropriate safeguards." The EBA's AML/CFT guidelines require that customer risk assessments not be "discriminatory." These obligations interact with the impossibility theorem to create a regulatory standard that cannot, in the mathematical sense, be achieved — only navigated through explicit, documented trade-off choices.
+
+The ethically sophisticated response to this impossibility is not to pretend it does not exist, but to treat fairness criterion selection as an explicit governance decision, documented in the model's risk management framework, that reflects a deliberate choice about which kind of error the institution considers more costly. A high false positive rate for a particular demographic group (violating equalised odds) may be less acceptable, normatively, than a recalibrated score for that group (violating demographic parity). But this is a values question, not a technical one, and it demands human accountability — from named individuals within the institution — that cannot be delegated to the model.
+
+### 3.4 Attention Weights, Opacity, and the Auditable Inference Trace
+
+Return now to the technical question raised in Part 2: to what extent do attention weights in multi-head GATs and HGTs provide the "auditable inference trace" that the EU AI Act demands?
+
+The short answer is: less than is commonly claimed.
+
+The naive interpretation of attention in GNNs borrows directly from the transformer interpretability literature: if $\alpha_{ij}$ is high, then node $j$ "contributed strongly" to node $i$'s representation, and by extension to $i$'s risk score. This is the foundation of most post-hoc explanations offered by commercial AML AI vendors: "this account was flagged because of its connections to accounts X, Y, and Z, which received high attention weights."
+
+However, several empirical and theoretical results undermine this interpretation:
+
+**Attention is not attribution.** Jain and Wallace (2019) demonstrated in NLP contexts that high attention weights can be distributed in arbitrary patterns without affecting model output — and that alternative, equally high-performing models can have radically different attention patterns. This was confirmed for graph settings by Brody et al. (2022) in work on "How Attentive are Graph Attention Networks?" The conclusion is that attention weights reflect the model's internal computation pathway, not the feature importance landscape in any causally interpretable sense.
+
+**Multi-layer composition destroys local interpretability.** In a two-layer GAT, the final risk score for node $i$ incorporates a weighted average of node $i$'s two-hop neighbourhood. The attention weights from the first layer have been transformed by the second layer's computation; the chain of multiplications means there is no simple relationship between the input features and the final score that a two-level attention explanation could accurately summarise. With $k$ layers (and $k \geq 3$ is common for AML applications, to capture multi-hop laundering chains), the interpretive difficulty is compounded geometrically.
+
+**The aggregation problem.** An auditable inference trace must be legible not just to ML engineers but to compliance officers, legal teams, and potentially regulators and courts. The translation from "these attention weights explain the flag" to "this account is suspicious because of this specific transaction pattern" requires a layer of natural language interpretation that is itself a model — and that model can introduce further distortions. Commercial vendors that produce narrative explanations from GNN outputs are, in effect, running a second ML model (often an LLM) to interpret the outputs of the first, creating a compounded opacity problem.
+
+The practical regulatory implication is that the EU AI Act's Article 13 demands, for GNN-based AML systems, something that the current generation of architectures cannot reliably provide. This is not, primarily, a technical problem waiting for a technical solution. It is a structural tension between the regulatory objective (genuine human understanding of AI decisions) and the technical reality (that the features most predictive of money laundering exist in representational spaces that do not naturally translate into human-legible explanations).
+
+### 3.5 Privacy, Data Minimisation, and the Surveillance Paradox
+
+A final dimension of the ethical governance challenge that receives insufficient attention in the financial AI literature is the **conflict between AML data requirements and GDPR data minimisation principles**.
+
+Effective GNN-based AML detection benefits from rich, cross-institutional, longitudinal transaction data — the more complete the picture of a customer's financial behaviour across institutions and over time, the more accurately the model can distinguish genuine laundering patterns from legitimate activity. This creates systematic pressure toward data accumulation: more nodes in the graph, more edge types, longer temporal windows, cross-institutional data sharing.
+
+GDPR Article 5(1)(c) requires that personal data be "adequate, relevant and limited to what is necessary in relation to the purposes for which they are processed" (data minimisation). Article 5(1)(e) requires that data be "kept in a form which permits identification of data subjects for no longer than is necessary" (storage limitation). These principles are structurally in tension with the data hunger of high-performing GNN architectures.
+
+The FATF-endorsed "de-risking" phenomenon — where institutions exit entire customer segments or geographic markets to reduce compliance exposure — has been extensively documented as a damaging side-effect of over-broad AML rules. An analogous "de-risking" effect at the data level is plausible: institutions that accumulate rich cross-entity data to improve AML detection expose themselves to GDPR enforcement risk. The equilibrium is a suboptimal compromise in which neither AML detection nor data protection is optimised.
+
+One technically promising response is **federated learning**: training GNN models across multiple institutions without centralising the underlying transaction data, using privacy-preserving techniques (differential privacy, secure multi-party computation) to aggregate model updates rather than raw data. The EU Commission's AI Act regulatory sandbox framework explicitly encourages federated approaches for high-risk applications. However, federated GNN training introduces its own challenges — gradient leakage attacks can partially reconstruct training data from model updates, and the communication overhead of graph-structured data sharing is substantially higher than for tabular data.
+
+The broader point is that financial AI governance is not a problem of technical compliance — of adding interpretability modules to deployed models and submitting conformity assessment documentation. It is a problem of institutional design, requiring sustained engagement between ML engineers, compliance specialists, legal teams, regulators, and civil society representatives who can advocate for the interests of affected communities. The recursive compliance dynamic demands not just better algorithms, but better institutions.

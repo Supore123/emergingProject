@@ -1,15 +1,142 @@
 ---
-title: "Part 2: ML Technologies - GNNs and Anomaly Detection"
-description: "Technical architectures addressing systemic risk and fraud."
+title: "Part 2: ML Architectures — Graph Neural Networks and Anomaly Detection"
+description: "A technical deep-dive into Heterogeneous Graph Transformers, Graph Attention Networks, Variational Autoencoders, and Isolation Forests as deployed in AML and market surveillance."
 pubDate: "May 01 2026"
 layout: ../../layouts/AcademicLayout.astro
 ---
 
 import FraudRingGraph from '../../components/FraudRingGraph.jsx';
 
-# 2. Deep Dive: Machine Learning Solutions
-[Paste your Part 2 text here]
+## Part 2: Machine Learning Architectures for Financial Crime Detection
 
-## Interactive Demonstration: Fraud Ring Discovery
+### 2.1 Why Graph Structure Is the Natural Representation of Financial Crime
+
+The fundamental insight motivating Graph Neural Network deployment in AML is that money laundering is not a property of individual transactions — it is a property of **transaction networks**. The Egmont Group's typology library and FinCEN's published SAR analytics consistently show that the most consequential laundering operations — trade-based money laundering, real estate layering schemes, professional money laundering networks — manifest as structured patterns of connectivity between accounts, beneficial owners, corporate entities, and jurisdictions. The "layering" phase of the classic Placement-Layering-Integration model is, in graph-theoretic terms, an attempt to increase the path distance between the source of illicit funds and their legitimate-appearing destination while minimising detectable structural anomalies along that path.
+
+Classical transaction monitoring treats each transaction as an independent event. This is equivalent to trying to detect a smuggling ring by inspecting individual parcels without reference to the network of senders, recipients, forwarding addresses, and shipping companies that connects them. The information content required for detection lives in the **relational structure**, not in any individual record.
+
+Formally, a financial transaction network can be represented as a heterogeneous attributed graph $G = (V, E, X, R)$ where:
+
+- $V$ is the set of vertices (accounts, entities, beneficial owners, IP addresses, devices)
+- $E$ is the set of directed, typed edges (wire transfers, cash deposits, ownership relations, shared contact information)
+- $X \in \mathbb{R}^{|V| \times d}$ is a matrix of node feature vectors of dimension $d$
+- $R$ is a set of edge types, making the graph heterogeneous
+
+The detection problem is then a **node classification** or **subgraph classification** task: given observed $G$ up to time $t$, label a node (account) or subgraph (cluster of accounts) as fraudulent or legitimate. The challenge is that fraudulent subgraphs are rare (base rates below 0.1% are common), structurally diverse, and deliberately designed to resemble legitimate subgraphs at the level of individual edges.
+
+### 2.2 Graph Attention Networks (GATs): The Mechanism
+
+The foundational Graph Neural Network architecture is message passing: each node aggregates information from its neighbourhood, transforms that information through a learnable function, and updates its own representation. The key question in any GNN is *how* the neighbourhood is aggregated — specifically, how to weight the contributions of different neighbours.
+
+**Graph Attention Networks** (Veličković et al., 2018) address this by learning the aggregation weights end-to-end, rather than fixing them as a function of graph structure (as in Kipf and Welling's GCN). The attention mechanism operates as follows.
+
+For a node $i$ with feature vector $\mathbf{h}_i \in \mathbb{R}^F$ and neighbour $j$, the unnormalised attention coefficient is:
+
+$$e_{ij} = \text{LeakyReLU}\left(\mathbf{a}^T \left[ \mathbf{W}\mathbf{h}_i \; \| \; \mathbf{W}\mathbf{h}_j \right] \right)$$
+
+where $\mathbf{W} \in \mathbb{R}^{F' \times F}$ is a learnable linear transformation shared across nodes, $\mathbf{a} \in \mathbb{R}^{2F'}$ is a learnable attention vector, and $\|$ denotes concatenation. The coefficients are then normalised across all neighbours using softmax:
+
+$$\alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k \in \mathcal{N}(i)} \exp(e_{ik})}$$
+
+The updated node representation is:
+
+$$\mathbf{h}'_i = \sigma\left( \sum_{j \in \mathcal{N}(i)} \alpha_{ij} \mathbf{W} \mathbf{h}_j \right)$$
+
+In practice, **multi-head attention** (analogous to the mechanism in transformer architectures) concatenates or averages $K$ independent attention heads, providing representational stability and reducing the variance of individual head estimates:
+
+$$\mathbf{h}'_i = \|_{k=1}^{K} \sigma\left( \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^k \mathbf{W}^k \mathbf{h}_j \right)$$
+
+For AML applications, the interpretability of attention weights carries significant regulatory weight. In principle, $\alpha_{ij}$ quantifies how strongly node $j$'s features influenced the risk assessment of node $i$ — which translates, in compliance terms, to "which counterparties contributed most to this account's risk score." This is precisely the kind of attribution that the EU AI Act's transparency requirements demand. The complication — developed fully in Part 3 — is that attention weights in multi-layer GATs cannot be straightforwardly interpreted as feature importances, and treating them as such produces systematically misleading explanations.
+
+### 2.3 Heterogeneous Graph Transformers (HGTs): Handling Multi-Relational Data
+
+A significant limitation of standard GATs for financial networks is their assumption of a **homogeneous** graph — all nodes of the same type, all edges of the same type. Real financial networks are radically heterogeneous. An account node is categorically different from a beneficial owner node or a corporate entity node; a wire transfer edge carries different information than a shared-device edge or a common-address edge.
+
+**Heterogeneous Graph Transformers** (Hu et al., 2020) extend the transformer attention mechanism to accommodate typed nodes and edges. The key innovation is type-dependent linear transformations: rather than sharing $\mathbf{W}$ across all node pairs, HGT defines **type-specific projection matrices** for each combination of source node type $\tau(s)$, target node type $\tau(t)$, and edge relation type $\phi(e)$.
+
+The attention weight for an edge from source $s$ to target $t$ via relation $e$ is computed as:
+
+$$\text{Attn}(s, e, t) = \text{Softmax}\left( \frac{\left(\mathbf{K}^{\tau(s)}(\mathbf{h}_s)\right)^T \cdot \mathbf{W}^{\phi(e)}_{\text{ATT}} \cdot \mathbf{Q}^{\tau(t)}(\mathbf{h}_t)}{\sqrt{d}} \right)$$
+
+where $\mathbf{K}^{\tau(s)}$ is a type-specific key projection, $\mathbf{Q}^{\tau(t)}$ is a type-specific query projection, and $\mathbf{W}^{\phi(e)}_{\text{ATT}}$ is a relation-specific attention matrix. This is structurally identical to scaled dot-product attention in standard transformers, with the critical addition of type conditioning.
+
+In the context of AML, this architecture can simultaneously reason over:
+
+- Account-to-account transaction edges (with features including amount, currency, time-stamp, channel)
+- Account-to-entity beneficial ownership edges (with features including registration jurisdiction, company age, UBO disclosure completeness)
+- Entity-to-entity corporate relationship edges (subsidiaries, parent companies, joint ventures)
+- Account-to-device shared access edges (flagging mule account networks that share login infrastructure)
+
+The practical performance gains of HGT over homogeneous GNNs on AML benchmarks are substantial. Work published using the IBM AMLSim synthetic dataset and real transaction data from SWIFT's KYC Registry has shown 15–25 percentage point improvements in AUPRC (Area Under the Precision-Recall Curve) — the appropriate metric for severely imbalanced datasets — relative to both rule-based baselines and homogeneous GNN baselines.
+
+![Heterogeneous Graph Transformer Architecture: Node type projections and relation-specific attention weights](/images/hgt-architecture.png)
 
 <FraudRingGraph client:load />
+
+The interactive demonstration above simulates a 40-node transaction network. Before analysis, accounts in the latent fraud ring are structurally indistinguishable from legitimate nodes when viewed in isolation. Running the GNN analysis reveals the ring by surfacing the dense, bidirectional, temporally clustered connectivity pattern that characterises layering behaviour — a pattern invisible to any single-transaction rule.
+
+### 2.4 Anomaly Detection for Market Surveillance: The Unsupervised Challenge
+
+Market surveillance presents a structurally different ML problem. Where AML fraud detection typically operates in a **semi-supervised** regime (historical SAR data provides weak labels for a small fraction of transactions), market manipulation detection is largely **unsupervised**: the specific forms that novel manipulation schemes take are, by definition, unknown in advance, and labelled examples of market manipulation are extremely sparse — partly because prosecutions are slow and contested, and partly because regulators are reluctant to publish detailed typologies that would educate future manipulators.
+
+This demands anomaly detection architectures that can learn a model of "normal" market behaviour and flag deviations from that model without requiring explicit manipulation examples.
+
+#### 2.4.1 Variational Autoencoders (VAEs)
+
+A **Variational Autoencoder** is a generative model that learns a probabilistic latent representation of the input data. It consists of two components:
+
+The **encoder** maps an input $\mathbf{x}$ (a feature vector representing, for example, a sequence of order book states for a given instrument over a rolling 60-minute window) to a distribution over a latent space: $q_\phi(\mathbf{z} | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}), \text{diag}(\boldsymbol{\sigma}^2_\phi(\mathbf{x})))$, where $\boldsymbol{\mu}_\phi$ and $\boldsymbol{\sigma}_\phi$ are neural network outputs.
+
+The **decoder** maps a sample from the latent distribution back to the input space: $p_\theta(\mathbf{x} | \mathbf{z})$, parameterised by a second neural network. The model is trained to maximise the Evidence Lower BOund (ELBO):
+
+$$\mathcal{L}(\phi, \theta; \mathbf{x}) = \mathbb{E}_{q_\phi(\mathbf{z}|\mathbf{x})}\left[\log p_\theta(\mathbf{x}|\mathbf{z})\right] - D_{\text{KL}}\left(q_\phi(\mathbf{z}|\mathbf{x}) \| p(\mathbf{z})\right)$$
+
+The first term rewards reconstruction fidelity; the second term (the KL divergence) regularises the latent space toward the prior $p(\mathbf{z}) = \mathcal{N}(\mathbf{0}, \mathbf{I})$, ensuring the latent space is smooth and well-structured.
+
+For anomaly detection, the operational logic is as follows: a VAE trained on normal market microstructure data learns to reconstruct normal inputs with low error. When presented with an anomalous input — for instance, an order flow sequence characteristic of spoofing (placing large orders with no intention to execute, to create artificial price pressure) — the decoder cannot reconstruct it accurately, because the latent space has not allocated probability mass to represent it. The **reconstruction error** $\|\mathbf{x} - \hat{\mathbf{x}}\|^2$ therefore serves as an anomaly score.
+
+This approach has two important properties for regulatory applications. First, it is unsupervised: it requires no manipulation labels, only a corpus of "normal" behaviour for training. Second, the reconstruction error is a continuous score rather than a binary flag, enabling the same calibrated risk-based triage that GNN scores enable in AML.
+
+The limitation is the **choice of normality baseline**. A VAE trained on pre-COVID microstructure data will generate false positives whenever market conditions shift significantly, for the same non-stationarity reasons that afflict rules-based systems. Practical deployments use **online learning** variants that continuously update the model with recent data, but this introduces a new risk: a sufficiently gradual manipulation scheme may be incorporated into the normality baseline before it is flagged.
+
+![VAE Latent Space Visualisation: Normal vs Anomalous Order Flow Clusters](/images/vae-latent-space.png)
+
+#### 2.4.2 Isolation Forests
+
+**Isolation Forests** (Liu et al., 2008) take a conceptually distinct approach to anomaly detection rooted in a simple intuition: anomalous instances are, by definition, "few and different." In a random partition of the feature space, anomalies should be isolated (separated from all other instances) with fewer partitions than normal instances, because they occupy sparse regions of the feature space.
+
+The algorithm constructs an ensemble of **isolation trees**. Each tree is built by:
+
+1. Randomly selecting a feature $q$ from the feature set
+2. Randomly selecting a split value $p$ between the minimum and maximum observed values of $q$
+3. Recursively partitioning the data until each instance is isolated or a maximum tree depth is reached
+
+The **anomaly score** for instance $\mathbf{x}$ is derived from the average path length $h(\mathbf{x})$ across all trees:
+
+$$s(\mathbf{x}, n) = 2^{-\frac{E[h(\mathbf{x})]}{c(n)}}$$
+
+where $c(n) = 2H(n-1) - \frac{2(n-1)}{n}$ is the expected path length for a dataset of size $n$, and $H(\cdot)$ is the harmonic number. Instances with $s \approx 1$ are anomalous (isolated quickly); instances with $s \approx 0.5$ are indistinguishable from normal.
+
+Isolation Forests have several properties that make them attractive for market surveillance:
+
+- **Computational efficiency**: Linear time complexity $O(n)$ and constant space complexity make them deployable in near-real-time trading environments
+- **No distributional assumptions**: Unlike distance-based anomaly detectors (LOF, k-NN), Isolation Forests do not assume Gaussian or any other parametric distribution
+- **Sub-sampling robustness**: The algorithm's performance is stable under aggressive sub-sampling, enabling fast adaptation to new data
+
+In practice, the most effective market surveillance systems combine VAE and Isolation Forest scores with **gradient-boosted ensemble models** (XGBoost, LightGBM) that incorporate rule-derived features alongside ML-derived anomaly scores. This hybrid architecture acknowledges that some manipulation patterns *are* well-characterised (wash trading volumes, marking-the-close timing) and are best captured by deterministic rules, while the residual anomaly detection layer catches novel schemes the rules do not cover.
+
+### 2.5 The Integration Challenge: From Score to Investigation
+
+A dimension of ML deployment that is frequently underweighted in academic treatment but is operationally decisive is the **integration of ML scores into human investigation workflows**. A GNN risk score and a VAE reconstruction error are not compliance outputs; they are inputs to a compliance process that must terminate in a documented human judgement — a decision to file a SAR, escalate to law enforcement, exit a customer relationship, or close the alert.
+
+The quality of this integration determines whether ML deployment actually improves compliance outcomes or merely relocates the bottleneck. Poorly designed triage systems present analysts with the same binary alert queue as before, now populated by ML-generated flags that are statistically superior but no more legible. The analyst's cognitive task remains unchanged: review a stream of alerts with no contextual prioritisation, document a decision with limited access to the model logic that generated the flag.
+
+Effective integration requires:
+
+1. **Contextual risk narratives**: The ML score must be accompanied by the specific subgraph features, attention weight distributions, or feature importances that drove the score — presented in compliance-readable terms ("three counterparties in this cluster share a registered address and have transacted with a flagged correspondent bank in the past 60 days") rather than raw model output.
+
+2. **Calibrated alert tiers**: Rather than a single alert queue, ML scores should be used to define tiers with different investigation protocols — automated SAR filing for extreme scores, expedited review for high scores, standard review for medium scores, and suppression with logged rationale for low scores.
+
+3. **Feedback loops for model governance**: Human investigator decisions must be logged in a format that enables systematic model performance monitoring. This is not merely good ML practice; under DORA and the EU AI Act, it is a regulatory requirement.
+
+The recursive compliance dynamic surfaces here in concrete form: building the feedback infrastructure to monitor the monitoring system is itself a significant technical undertaking, requiring further algorithmic support to process the metadata generated by investigations at scale.

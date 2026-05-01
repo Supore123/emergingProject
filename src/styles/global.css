@@ -1,330 +1,665 @@
-@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
 
 /* =========================================================================
-   global.css
-   Academic whitepaper: Recursive Compliance Dynamic
-   Typography: Lora (display, H1-H3) + Inter (body, UI)
-   Layout: 70ch prose measure
+   global.css — Auditable AI in Fintech
+   Editorial direction: deep-navy / teal / warm-paper
+   Display: Fraunces (optical-size serif) · Body: DM Sans · Code: DM Mono
    ========================================================================= */
 
 :root {
-  /* High-Contrast Academic Palette */
-  --ink-primary: #111827;    /* Deep charcoal for headings */
-  --ink-body: #1f2937;       /* Soft black for long-form reading */
-  --ink-muted: #4b5563;      /* Grey for captions/metadata */
-  
-  --paper-white: #ffffff;
-  --insight-bg: #f8fafc;     /* Consistent tint for boxes and diagrams */
-  --insight-bg-strong: #f1f5f9;
-  --insight-border: #e2e8f0;
-  --insight-accent: #1e3a5f; /* Academic Navy */
-  --accent-active: #2337ff;
+  /* ── Core palette ── */
+  --ink-900:  #0c1220;   /* near-black for headings          */
+  --ink-700:  #1e2d40;   /* body text                         */
+  --ink-500:  #4a5568;   /* muted / captions                  */
+  --ink-300:  #94a3b8;   /* placeholders / rules              */
 
-  /* Typography */
-  --font-serif: "Lora", Georgia, "Times New Roman", serif;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --paper:    #fafaf8;   /* warm off-white page               */
+  --surface:  #ffffff;   /* article card                      */
 
-  /* Prose measure: the 70ch golden ratio for long-form reading */
-  --content-width: 70ch;
+  /* ── Accent ramp — deep teal ── */
+  --accent-900: #0a2233;
+  --accent-800: #0f3352;
+  --accent-700: #155276;
+  --accent-500: #1a6ea3;
+  --accent-400: #2389c8;
+  --accent-200: #a8d8f0;
+  --accent-100: #ddf0fb;
+  --accent-50:  #f0f9ff;
+
+  /* ── Highlight ramp — amber/gold ── */
+  --gold-500: #c47c1a;
+  --gold-300: #e8b96a;
+  --gold-100: #fef3d8;
+
+  /* ── Semantic ── */
+  --danger:   #b91c1c;
+  --success:  #15803d;
+
+  /* ── Typography ── */
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body:    "DM Sans", system-ui, sans-serif;
+  --font-mono:    "DM Mono", ui-monospace, monospace;
+
+  /* ── Layout ── */
+  --content-width: 72ch;
+  --wide-width:    92ch;
+
+  /* ── Shadows ── */
+  --shadow-card:  0 1px 3px rgba(12,18,32,.06), 0 4px 16px rgba(12,18,32,.08);
+  --shadow-float: 0 8px 32px rgba(12,18,32,.14);
+
+  /* ── Radii ── */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
 }
 
-/* -------------------------------------------------------------------------
-   1. Base Reset & Body
-   ------------------------------------------------------------------------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* ── Dark-mode overrides ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink-900:  #f0f4f8;
+    --ink-700:  #cbd5e1;
+    --ink-500:  #94a3b8;
+    --ink-300:  #475569;
+    --paper:    #0f1923;
+    --surface:  #162231;
+    --accent-100: #0a2233;
+    --accent-50:  #071929;
+    --gold-100: #2a1e06;
+    --shadow-card:  0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.4);
+    --shadow-float: 0 8px 32px rgba(0,0,0,.5);
+  }
 }
+
+/* =========================================================================
+   1. BASE RESET
+   ========================================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--paper-white);
-  color: var(--ink-body);
-  margin: 0;
-  padding: 0;
-  text-align: left;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  font-family: var(--font-body);
   font-size: 18px;
-  line-height: 1.75;
+  line-height: 1.8;
+  color: var(--ink-700);
+  background-color: var(--paper);
+  /* Subtle gradient wash behind the whole page */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(26,110,163,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(21,82,118,.07) 0%, transparent 50%);
+  background-attachment: fixed;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  word-wrap: break-word;
 }
 
-/* -------------------------------------------------------------------------
-   2. Universal Content Schema (Forces all MDX parts to match perfectly)
-   ------------------------------------------------------------------------- */
+/* =========================================================================
+   2. LAYOUT
+   ========================================================================= */
 main {
   width: 100%;
   max-width: var(--content-width);
   margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
+  padding: 3rem 1.5rem 5rem;
 }
 
-.prose,
-article.prose {
-  max-width: var(--content-width) !important;
-  margin: 0 auto !important;
+/* =========================================================================
+   3. ARTICLE CARD SHELL
+   ========================================================================= */
+article.prose,
+.prose {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(15,51,82,.08);
+  padding: 3rem 3.5rem;
+  max-width: var(--content-width);
+  margin: 0 auto;
 }
 
-.prose, 
-.prose p, 
-.prose li,
-main p {
-  font-family: var(--font-sans) !important;
-  color: var(--ink-body) !important;
-  font-size: 18px !important;
-  opacity: 1 !important;
-  line-height: 1.75 !important;
-  max-width: var(--content-width) !important;
+@media (max-width: 720px) {
+  article.prose, .prose { padding: 2rem 1.25rem; }
 }
 
-.prose p {
-  margin-bottom: 1.4em !important;
-}
+/* =========================================================================
+   4. TYPOGRAPHY
+   ========================================================================= */
 
-/* -------------------------------------------------------------------------
-   3. Typography & Headings
-   ------------------------------------------------------------------------- */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--ink-primary) !important;
-  line-height: 1.25;
+/* — Headings use Fraunces optical-size display — */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--ink-900);
+  line-height: 1.2;
   text-wrap: balance;
-  margin: 2.2rem 0 0.75rem;
-}
-
-.prose h1, .prose h2, .prose h3 {
-  font-family: var(--font-serif) !important;
-  font-weight: 700 !important;
 }
 
 h1 {
-  font-size: clamp(2.1rem, 4vw, 2.75rem);
-  letter-spacing: -0.015em;
-  margin-top: 0;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  margin: 0 0 1.5rem;
 }
 
+/* H2 gets a vivid left accent bar */
 h2 {
-  font-size: clamp(1.55rem, 2.6vw, 1.85rem);
-  letter-spacing: -0.01em;
-  margin-top: 2.6rem;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--insight-border);
+  font-size: clamp(1.45rem, 2.8vw, 1.75rem);
+  font-weight: 600;
+  margin: 3rem 0 1rem;
+  padding-left: 1rem;
+  border-left: 4px solid var(--accent-500);
+  color: var(--ink-900);
 }
 
+/* H3 italic in accent colour */
 h3 {
-  font-size: clamp(1.2rem, 1.9vw, 1.35rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.9vw, 1.25rem);
+  font-weight: 400;
   font-style: italic;
-  color: var(--insight-accent) !important;
+  color: var(--accent-700);
+  margin: 2.2rem 0 .6rem;
 }
 
+/* Body paragraphs */
+p {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--ink-700);
+  margin-bottom: 1.4em;
+}
+
+/* Drop-cap on the very first paragraph of a section */
+.prose > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.6rem;
+  font-weight: 700;
+  line-height: .8;
+  float: left;
+  margin: .08em .12em 0 0;
+  color: var(--accent-700);
+}
+
+/* Links */
 a {
-  color: var(--insight-accent);
+  color: var(--accent-500);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  transition: color 0.15s ease;
+  transition: color .15s;
 }
+a:hover { color: var(--accent-400); }
 
-a:hover {
-  color: var(--accent-active);
-}
-
-hr {
-  border: none;
-  border-top: 1px solid var(--insight-border);
-  margin: 2.5rem 0;
-}
-
-/* -------------------------------------------------------------------------
-   4. Insight Boxes (Blockquotes, Tables, Figures)
-   ------------------------------------------------------------------------- */
-blockquote, table, figure, pre {
-  background: var(--insight-bg) !important;
-  border: 1px solid var(--insight-border) !important;
-  border-radius: 8px;
-  margin: 2.5rem 0;
-  opacity: 1 !important; 
-}
-
+/* =========================================================================
+   5. BLOCKQUOTES — vivid pull-quote treatment
+   ========================================================================= */
 blockquote {
-  padding: 1.25rem 1.5rem 1.25rem 1.65rem;
-  border-left: 3px solid var(--insight-accent) !important;
-  color: var(--ink-body);
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  line-height: 1.65;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 1.5rem 1.75rem 1.5rem 2rem;
+  background: linear-gradient(135deg, var(--accent-50) 0%, var(--gold-100) 100%);
+  border-left: 5px solid var(--accent-500);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-style: italic;
+  color: var(--ink-900);
+  box-shadow: var(--shadow-card);
 }
 
-blockquote cite,
-blockquote footer {
+blockquote::before {
+  content: '\201C';
+  position: absolute;
+  top: -.2rem;
+  left: .6rem;
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--accent-200);
+  font-family: var(--font-display);
+  pointer-events: none;
+}
+
+blockquote cite, blockquote footer {
   display: block;
-  margin-top: 0.6rem;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  color: var(--ink-muted);
+  margin-top: .75rem;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: .85rem;
+  color: var(--ink-500);
 }
 
-/* Allow figures to break the measure slightly if needed */
+/* =========================================================================
+   6. FIGURES & CAPTIONS
+   ========================================================================= */
+figure {
+  margin: 2.5rem 0;
+  padding: 1.25rem;
+  background: var(--accent-50);
+  border: 1px solid var(--accent-200);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* Wide figures can bleed slightly beyond the prose measure */
 .prose > figure,
 .prose .timeline,
 .prose .fraud-graph-wrap {
-  max-width: min(100%, 880px) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding: 1rem;
+  max-width: min(100%, 860px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
-figcaption, caption {
-  margin-top: 0.85rem;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--insight-border);
-  font-family: var(--font-sans);
-  font-size: 0.88rem;
-  color: var(--ink-muted);
+figcaption {
+  margin-top: .9rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--accent-200);
+  font-family: var(--font-body);
+  font-size: .875rem;
   line-height: 1.55;
-  text-align: left;
-  font-style: normal;
+  color: var(--ink-500);
 }
 
 figcaption::before {
   content: "Figure. ";
   font-weight: 600;
-  color: var(--insight-accent);
+  color: var(--accent-500);
 }
 
-/* Tables */
+/* =========================================================================
+   7. TABLES
+   ========================================================================= */
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 0.95rem;
+  font-size: .93rem;
+  margin: 2rem 0;
+  border-radius: var(--r-md);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(26,110,163,.15);
 }
 
 thead {
-  background: var(--insight-bg-strong);
+  background: linear-gradient(90deg, var(--accent-800) 0%, var(--accent-700) 100%);
 }
 
-th, td {
-  padding: 0.75rem 1rem;
+thead th {
+  padding: .8rem 1rem;
   text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid var(--insight-border);
+  font-family: var(--font-body);
+  font-size: .78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #ffffff;
+  border: none;
 }
 
-th {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--insight-accent);
+tbody td {
+  padding: .7rem 1rem;
+  border-bottom: 1px solid rgba(26,110,163,.08);
+  vertical-align: top;
+  color: var(--ink-700);
 }
 
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:nth-child(even) { background: rgba(241, 245, 249, 0.55); }
 
-/* -------------------------------------------------------------------------
-   5. Code & Layout
-   ------------------------------------------------------------------------- */
+tbody tr:nth-child(even) {
+  background: var(--accent-50);
+}
+
+tbody tr:hover {
+  background: var(--accent-100);
+  transition: background .15s;
+}
+
+/* =========================================================================
+   8. CODE
+   ========================================================================= */
 code {
-  padding: 0.15em 0.4em;
-  background: var(--insight-bg-strong);
-  border: 1px solid var(--insight-border);
-  border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 0.88em;
+  font-size: .875em;
+  padding: .15em .45em;
+  background: var(--accent-50);
+  border: 1px solid var(--accent-200);
+  border-radius: var(--r-sm);
+  color: var(--accent-800);
 }
 
 pre {
-  padding: 1.25rem;
+  background: var(--accent-900);
+  border-radius: var(--r-md);
+  padding: 1.5rem;
   overflow-x: auto;
-  font-size: 0.88rem;
-  line-height: 1.55;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-float);
 }
 
 pre > code {
   all: unset;
   font-family: var(--font-mono);
+  font-size: .875rem;
+  line-height: 1.65;
+  color: #e2e8f0;
 }
 
-/* Header Dropdown Fix */
-details.section-menu {
-  background: var(--paper-white);
-  border: 1px solid var(--insight-border);
+/* =========================================================================
+   9. HORIZONTAL RULE
+   ========================================================================= */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-500) 0%, var(--gold-300) 50%, transparent 100%);
+  margin: 3rem 0;
+  border-radius: 2px;
 }
 
-img, svg {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* =========================================================================
+   10. HEADER NAVIGATION
+   ========================================================================= */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(15, 25, 35, 0.92);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-bottom: 1px solid rgba(35,137,200,.25);
+}
+
+header nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--wide-width);
   margin: 0 auto;
+  padding: .75rem 1.5rem;
 }
 
-/* -------------------------------------------------------------------------
-   6. Accessibility & Responsive
-   ------------------------------------------------------------------------- */
-.sr-only {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
+/* Site title in header */
+header .site-title { text-decoration: none; }
+header .title-main {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8f4fc;
+}
+header .title-sub {
+  font-family: var(--font-body);
+  font-size: .68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--accent-400);
+}
+
+/* Dropdown nav */
+details.section-menu summary {
+  font-family: var(--font-body);
+  font-size: .83rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(35,137,200,.3);
+  border-radius: var(--r-sm);
+  padding: .45rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  transition: background .15s;
+  list-style: none;
+}
+details.section-menu summary:hover { background: rgba(255,255,255,.13); }
+details.section-menu summary::-webkit-details-marker { display: none; }
+.menu-icon { font-size: .65rem; color: var(--accent-400); }
+
+.dropdown-links {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  width: 250px;
+  background: var(--accent-900);
+  border: 1px solid rgba(35,137,200,.35);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-float);
+  display: flex;
+  flex-direction: column;
+  padding: .4rem 0;
+  z-index: 200;
+}
+
+.dropdown-links :global(a) {
+  padding: .6rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  transition: background .12s, color .12s;
+}
+.dropdown-links :global(a:last-child) { border-bottom: none; }
+.dropdown-links :global(a:hover) {
+  background: rgba(35,137,200,.2);
+  color: #ffffff;
+}
+.dropdown-links :global(a.active) {
+  color: #63c6f5;
+  font-weight: 600;
+}
+
+/* =========================================================================
+   11. INDEX / COVER CARDS
+   ========================================================================= */
+.nav-cards { gap: 1.5rem; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(26,110,163,.12);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+  position: relative;
   overflow: hidden;
-  clip: rect(1px 1px 1px 1px);
-  clip-path: inset(50%);
-  white-space: nowrap;
+}
+
+/* Colour accent bar per card */
+.card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent-500), var(--accent-400)); }
+.card:nth-child(2)::before { background: linear-gradient(90deg, #0d7a6b, #16a88f); }
+.card:nth-child(3)::before { background: linear-gradient(90deg, var(--gold-500), var(--gold-300)); }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-float);
+  transform: translateY(-3px);
+  border-color: rgba(26,110,163,.28);
+}
+
+.card-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent-500);
+  margin-bottom: .4rem;
+}
+
+.card h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 .5rem;
+  padding: 0;
+  border: none;
+  color: var(--ink-900);
+}
+
+.card p {
+  font-size: .9rem;
+  color: var(--ink-500);
+  margin: 0;
+}
+
+/* =========================================================================
+   12. REGULATORY TIMELINE (component override)
+   ========================================================================= */
+.timeline {
+  background: var(--surface) !important;
+  border: 1px solid rgba(26,110,163,.15) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem 1.75rem !important;
+  margin: 2.5rem 0 !important;
+}
+
+.timeline h2 {
+  font-family: var(--font-display) !important;
+  font-size: 1.3rem !important;
+  color: var(--ink-900) !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.timeline ol::before {
+  background: linear-gradient(180deg, var(--accent-500), var(--accent-200)) !important;
+}
+
+.node {
+  background: var(--accent-500) !important;
+  box-shadow: 0 0 0 5px var(--accent-100) !important;
+}
+
+.year {
+  color: var(--accent-600, #1a6ea3) !important;
+  font-weight: 700 !important;
+}
+
+/* =========================================================================
+   13. FRAUD RING GRAPH (component override)
+   ========================================================================= */
+.fraud-graph-wrap {
+  border-radius: var(--r-lg) !important;
+  border: 1px solid rgba(35,137,200,.2) !important;
+  overflow: hidden;
+}
+
+/* =========================================================================
+   14. SCROLL REVEAL ANIMATION
+   ========================================================================= */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Sections and figures animate in on scroll via IntersectionObserver */
+.reveal {
+  opacity: 0;
+  animation: none;
+}
+
+.reveal.is-visible {
+  animation: fadeUp .55s cubic-bezier(.22,.68,0,1.2) forwards;
+}
+
+/* Stagger children of headings + first paragraphs */
+h2.reveal { animation-delay: 0s; }
+h3.reveal { animation-delay: .05s; }
+p.reveal   { animation-delay: .1s; }
+figure.reveal { animation-delay: .15s; }
+
+/* =========================================================================
+   15. HERO SECTION (index page)
+   ========================================================================= */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 3.5rem;
+  position: relative;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -.03em;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  color: var(--ink-500);
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+/* =========================================================================
+   16. FOOTER
+   ========================================================================= */
+footer {
+  background: var(--accent-900);
+  color: var(--accent-200);
+  padding: 2.5rem 1.5rem 3.5rem;
+  text-align: center;
+  font-size: .88rem;
+  border-top: 1px solid rgba(35,137,200,.2);
+}
+
+footer .social-links a { color: var(--accent-300, #6bbadf); }
+footer .social-links a:hover { color: #ffffff; }
+
+/* =========================================================================
+   17. UTILITIES & ACCESSIBILITY
+   ========================================================================= */
+img, svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
 }
 
 :focus-visible {
-  outline: 2px solid var(--insight-accent);
-  outline-offset: 2px;
-  border-radius: 3px;
+  outline: 2px solid var(--accent-500);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
 }
 
+/* =========================================================================
+   18. RESPONSIVE
+   ========================================================================= */
 @media (max-width: 720px) {
   body { font-size: 17px; }
   main { padding: 1.5rem 1rem 3rem; }
-  blockquote { padding: 1rem 1.1rem; }
-  th, td { padding: 0.55rem 0.7rem; }
+  h2 { font-size: 1.3rem; }
+  .prose > p:first-of-type::first-letter { font-size: 2.8rem; }
 }
 
-/* -------------------------------------------------------------------------
-   7. Print Styles for MSc PDF Deliverable
-   ------------------------------------------------------------------------- */
+/* =========================================================================
+   19. PRINT (unchanged — keeps PDF output clean)
+   ========================================================================= */
 @media print {
-  header, footer, button, .fraud-graph-wrap, details {
-    display: none !important;
-  }
-  body {
-    font-size: 11pt;
-    background: white;
-    color: black;
-    line-height: 1.55;
-  }
-  h1 { font-size: 22pt; color: black !important; }
-  h2 { font-size: 15pt; border-bottom-color: #999; color: black !important; }
-  h3 { font-size: 12pt; color: black !important; }
-  a { color: black; text-decoration: none; }
-  a[href]::after {
-    content: " (" attr(href) ")";
-    font-size: 9pt;
-    color: #555;
-  }
-  blockquote, table, figure {
-    background: #f4f6f9 !important;
-    border: 1px solid #cbd5e1 !important;
-    box-shadow: none;
-    page-break-inside: avoid;
-  }
-  thead { display: table-header-group; }
-  tr, img, figure { page-break-inside: avoid; }
+  header, footer, button, .fraud-graph-wrap, details, .hero::after { display: none !important; }
+  body { font-size: 11pt; background: white; color: black; line-height: 1.55; }
+  h1  { font-size: 22pt; color: black !important; }
+  h2  { font-size: 15pt; border-left: none !important; padding-left: 0 !important; color: black !important; }
+  h3  { font-size: 12pt; color: black !important; font-style: italic; }
+  a   { color: black; text-decoration: none; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+  blockquote, table, figure { background: #f4f6f9 !important; border: 1px solid #cbd5e1 !important; box-shadow: none; page-break-inside: avoid; }
   @page { margin: 2.5cm; }
 }

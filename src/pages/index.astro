@@ -30,6 +30,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
         gap: 1.5rem;
         max-width: 960px;
         margin: 2rem auto 0;
+        padding: 0 1rem;
       }
       .card {
         background: white;
@@ -39,21 +40,57 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
         text-decoration: none;
         color: inherit;
         transition: box-shadow 0.2s, transform 0.2s;
+        position: relative;
+        overflow: hidden;
       }
       .card:hover {
         box-shadow: var(--box-shadow);
         transform: translateY(-2px);
       }
-      .card-label {
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 0.5rem;
+      /* Colour bar at top of each card */
+      .card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        border-radius: 14px 14px 0 0;
       }
-      .card h2 { font-size: 1.15rem; margin: 0 0 0.5rem; }
-      .card p { font-size: 0.9rem; color: rgb(var(--gray)); margin: 0; }
+      .card-part1::before { background: linear-gradient(90deg, #1a6ea3, #2389c8); }
+      .card-part2::before { background: linear-gradient(90deg, #0d7a6b, #16a88f); }
+      .card-part3::before { background: linear-gradient(90deg, #c47c1a, #e8b96a); }
+      .card-conclusion::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+
+      .card-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.45rem;
+      }
+      /* Each label colour matches its bar */
+      .card-part1 .card-label       { color: #1a6ea3; }
+      .card-part2 .card-label       { color: #0d7a6b; }
+      .card-part3 .card-label       { color: #c47c1a; }
+      .card-conclusion .card-label  { color: #7c3aed; }
+
+      .card h2 {
+        font-size: 1.1rem;
+        margin: 0 0 0.5rem;
+        /* Reset any global h2 styles from global.css */
+        border: none !important;
+        padding: 0 !important;
+        border-left: none !important;
+        color: #111827;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+      .card p {
+        font-size: 0.9rem;
+        /* High-contrast muted — dark enough to read on white */
+        color: #374151;
+        margin: 0;
+        line-height: 1.55;
+      }
     </style>
   </head>
   <body>
@@ -62,25 +99,34 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
       <section class="hero">
         <h1>Auditable AI in Fintech</h1>
         <p>
-          How algorithmic systems, compliance automation, and the recursive compliance dynamic 
+          How algorithmic systems, compliance automation, and the recursive compliance dynamic
           are reshaping Anti-Money Laundering and financial fraud detection.
         </p>
       </section>
+
       <div class="nav-cards">
-        <a href="/blog/part-1-domain" class="card">
+        <a href="/blog/part-1-domain" class="card card-part1">
           <div class="card-label">Part 1</div>
-          <h2>The Domain & Challenges</h2>
+          <h2>The Domain &amp; Challenges</h2>
           <p>Why rule-based heuristics collapse against adaptive adversaries, and the asymmetric cost of misclassification.</p>
         </a>
-        <a href="/blog/part-2-ml-technologies" class="card">
+
+        <a href="/blog/part-2-ml-technologies" class="card card-part2">
           <div class="card-label">Part 2</div>
           <h2>ML Architectures</h2>
           <p>Graph Neural Networks, Heterogeneous Graph Transformers, VAEs, and Isolation Forests.</p>
         </a>
-        <a href="/blog/part-3-ethical-implications" class="card">
+
+        <a href="/blog/part-3-ethical-implications" class="card card-part3">
           <div class="card-label">Part 3</div>
           <h2>Ethical Governance</h2>
           <p>Rudin's challenge, fairness impossibility theorems, and the EU AI Act's auditable inference demand.</p>
+        </a>
+
+        <a href="/blog/conclusion" class="card card-conclusion">
+          <div class="card-label">Conclusion</div>
+          <h2>The Asymmetry That Will Define the Next Decade</h2>
+          <p>The Recursive Compliance Dynamic as a permanent condition, and what it means for regulators and institutions alike.</p>
         </a>
       </div>
     </main>

@@ -1,0 +1,108 @@
+---
+const events = [
+	{
+		year: 'Post-Crisis',
+		title: 'MiFID II & Basel III',
+		detail: 'Post-Crisis Regulation',
+	},
+	{
+		year: 'Aug 2024',
+		title: 'EU AI Act',
+		detail: 'High-Risk Designations',
+	},
+	{
+		year: 'Jan 2025',
+		title: 'DORA',
+		detail: 'ICT Risk Requirements',
+	},
+	{
+		year: '2025',
+		title: 'EU AMLA Directives',
+		detail: 'Union-wide AML oversight harmonisation',
+	},
+];
+---
+
+<section class="timeline" aria-label="European fintech regulation timeline">
+	<h2>Regulatory Timeline: AI Governance in Fintech</h2>
+	<ol>
+		{
+			events.map((event) => (
+				<li>
+					<span class="node" aria-hidden="true"></span>
+					<p class="year">{event.year}</p>
+					<h3>{event.title}</h3>
+					<p class="detail">{event.detail}</p>
+				</li>
+			))
+		}
+	</ol>
+</section>
+
+<style>
+	.timeline {
+		margin: 1rem 0 2rem;
+		padding: 1.25rem;
+		border-radius: 14px;
+		background: #ffffff;
+		border: 1px solid rgba(var(--gray-light), 0.85);
+	}
+	.timeline h2 {
+		margin: 0 0 1.25rem;
+		font-size: clamp(1.3rem, 1.8vw, 1.7rem);
+	}
+	.timeline ol {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		position: relative;
+	}
+	.timeline ol::before {
+		content: '';
+		position: absolute;
+		left: 0.72rem;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: linear-gradient(#d0dbeb, #9bb2d2);
+	}
+	.timeline li {
+		position: relative;
+		padding-left: 2.2rem;
+		padding-bottom: 1.4rem;
+	}
+	.timeline li:last-child {
+		padding-bottom: 0;
+	}
+	.node {
+		position: absolute;
+		left: 0.35rem;
+		top: 0.35rem;
+		width: 0.72rem;
+		height: 0.72rem;
+		border-radius: 999px;
+		background: #2f4f7f;
+		box-shadow: 0 0 0 4px #eaf0fa;
+	}
+	.year {
+		margin: 0;
+		font-weight: 700;
+		color: #304f7f;
+		font-size: 0.84rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+	.timeline h3 {
+		margin: 0.2rem 0;
+		font-size: 1.05rem;
+	}
+	.detail {
+		margin: 0;
+		color: rgb(var(--gray-dark));
+	}
+	@media (min-width: 800px) {
+		.timeline {
+			padding: 1.5rem 1.75rem;
+		}
+	}
+</style>

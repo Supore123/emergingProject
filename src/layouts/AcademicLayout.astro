@@ -1,0 +1,112 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import RegulatoryTimeline from '../components/RegulatoryTimeline.astro';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+	showRegulatoryTimeline?: boolean;
+	frontmatter?: {
+		title?: string;
+		description?: string;
+		pubDate?: Date | string;
+		updatedDate?: Date | string;
+		showRegulatoryTimeline?: boolean;
+	};
+};
+
+const props = Astro.props as Props;
+const frontmatter = props.frontmatter ?? {};
+
+const title = props.title ?? frontmatter.title ?? 'Academic Report';
+const description = props.description ?? frontmatter.description ?? '';
+const pubDateValue = props.pubDate ?? frontmatter.pubDate;
+const updatedDateValue = props.updatedDate ?? frontmatter.updatedDate;
+const pubDate =
+	pubDateValue instanceof Date ? pubDateValue : pubDateValue ? new Date(pubDateValue) : undefined;
+const updatedDate =
+	updatedDateValue instanceof Date
+		? updatedDateValue
+		: updatedDateValue
+			? new Date(updatedDateValue)
+			: undefined;
+const showRegulatoryTimeline =
+	props.showRegulatoryTimeline ?? frontmatter.showRegulatoryTimeline ?? false;
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: calc(100% - 2rem);
+				max-width: 1100px;
+				margin: 0 auto;
+				padding: 2.5rem 1rem 3rem;
+			}
+			.paper {
+				background: rgba(255, 255, 255, 0.9);
+				backdrop-filter: blur(3px);
+				border: 1px solid rgba(var(--gray-light), 0.8);
+				border-radius: 16px;
+				box-shadow: 0 12px 30px rgba(var(--gray), 0.15);
+				padding: 2rem 1.25rem;
+			}
+			.prose {
+				width: var(--content-max-width);
+				max-width: 100%;
+				margin: 0 auto;
+			}
+			.meta {
+				margin-bottom: 1.5rem;
+				padding-bottom: 1rem;
+				border-bottom: 1px solid rgba(var(--gray), 0.2);
+				color: rgb(var(--gray));
+			}
+			.meta h1 {
+				margin: 0.35rem 0 0;
+				text-wrap: balance;
+			}
+			.updated {
+				font-style: italic;
+				margin-top: 0.4rem;
+			}
+			.timeline-wrap {
+				margin: 2rem auto 3rem;
+				max-width: 900px;
+			}
+			@media (max-width: 720px) {
+				.paper {
+					padding: 1.5rem 0.75rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="paper">
+				{showRegulatoryTimeline && (
+					<div class="timeline-wrap">
+						<RegulatoryTimeline />
+					</div>
+				)}
+				<article class="prose">
+					<div class="meta">
+						{pubDate && <FormattedDate date={pubDate} />}
+						{updatedDate && (
+							<div class="updated">
+								Last updated on <FormattedDate date={updatedDate} />
+							</div>
+						)}
+						<h1>{title}</h1>
+					</div>
+					<slot />
+				</article>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

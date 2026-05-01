@@ -40,6 +40,8 @@ An HGT trained on a labelled subset of historical fraud rings learns to embed ac
 
 Empirical work published in 2025 reported F1 score improvements of approximately 4 to 5 percentage points over homogeneous GNN baselines on Ethereum Ponzi-detection benchmarks, alongside polynomial-time convergence guarantees and certified robustness bounds against adversarial perturbations of the graph. Comparable gains have been reported on the Elliptic++ Bitcoin transaction dataset, where heterogeneous attention captures the wallet-to-transaction type distinction that homogeneous architectures collapse.
 
+The transition from pairwise anomaly detection to topological signatures is now actively deployed in production. Industry leaders in decision intelligence, most notably [Quantexa](https://www.quantexa.com/), have operationalised graph-based entity resolution at scale. Their platforms demonstrate that contextualising a transaction within its k-hop counterparty network is currently the only viable method for detecting the layered, multi-entity mule networks deployed by modern organised crime.
+
 <FraudRingGraph client:load />
 
 ## 2.4 The Operational Constraints
@@ -55,6 +57,8 @@ A VAE is a generative model that learns to reconstruct its inputs through a prob
 The use of the VAE for anomaly detection rests on a simple property: the model is trained on a large corpus of historical, presumed-benign market behaviour, and consequently it learns to reconstruct such behaviour with low error. When the model is presented with an input drawn from a behavioural pattern that is rare or absent in the training distribution, the reconstruction error rises. The reconstruction error itself, or a calibrated transformation of it (often the negative log-likelihood under the learned generative model), serves as the anomaly score.
 
 For market surveillance, the input window typically encodes message-level order book activity: insertions, cancellations, and executions, time-stamped at microsecond resolution and aggregated into a tensor representation. Spoofing manifests as a pattern of large limit orders placed and cancelled before execution, generating a reconstruction signature that differs from genuine liquidity provision. Layering, momentum ignition, and quote stuffing each generate distinct reconstruction-error profiles. The advantage of the VAE relative to rule-based surveillance is that it does not require the regulator to enumerate the catalogue of manipulation typologies in advance.
+
+This probabilistic approach is actively reshaping institutional surveillance. Market infrastructure providers, including the deep-learning integrations within [Nasdaq SMARTS](https://www.nasdaq.com/solutions/market-surveillance) surveillance suite (which monitors over 50 marketplaces globally), are increasingly relying on unsupervised anomaly detection. By doing so, they can catch zero-day manipulation tactics, such as novel momentum ignition strategies, before they can be codified into static rules.
 
 <figure>
   <VAEAnomalyFlow client:load />
